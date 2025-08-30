@@ -44,7 +44,7 @@ const EmpDashboard = () => {
         socket.on('taskCreated',(createdTask)=>{
             console.log("Admin create task ", createdTask);
             toast.success(`Admin Assign one task  '${createdTask.title}''`);
-
+            fetchTaks()
         })
       
         return () => {
