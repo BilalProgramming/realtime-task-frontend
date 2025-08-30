@@ -5,6 +5,7 @@ import { LuListTodo, LuClipboardCheck, LuClock } from "react-icons/lu";
 import { createPortal } from 'react-dom';
 import { toast } from "react-toastify";
 import io from 'socket.io-client';
+
 const URL=import.meta.env.VITE_BACKEND_URL
 const socket = io(URL); 
 const DashboardCard=({title,value,icon,iconColor})=>{
@@ -91,17 +92,31 @@ const AdminStats=()=>{
     },[])
    // useEffect for handling WebSocket events
     useEffect(()=>{
-         // Listen for the 'taskUpdated' event from the backend
+         // Listen for the 'admin task updatwed' event from the backend
+         socket.emit('joinRoom',{roomName:'admin'})
+         console.log("admin join room Name admin");
+         
+         socket.on('adminTaskUpdated',(updatedTask)=>{
+            console.log("Admin has marked  one  task  as 'completed:", updatedTask);
+            toast.success(`Admin has marked  task '${updatedTask.title}' as 'completed`)
+
+            // Re-fetch the task statistics to reflect the change
+            fetchTaskstats(); 
+         })
+               // Listen for the 'user task updatwed' event from the backend
          socket.on('taskUpdated',(updatedTask)=>{
-            console.log("Received live update for task:", updatedTask);
-            toast.success("Received live update for task")
+            console.log("user has marked  one  task  as 'completed:", updatedTask);
+            toast.success(`User has marked  task '${updatedTask.title}' as 'completed`)
 
             // Re-fetch the task statistics to reflect the change
             fetchTaskstats(); 
          })
           // Cleanup the listener when the component unmounts
         return () => {
-            socket.off('taskUpdated'); 
+            socket.off('adminTaskUpdated');
+            socket.off('taskUpdated') 
+            console.log("admin disconnect to socket");
+
         };
 
     },[])

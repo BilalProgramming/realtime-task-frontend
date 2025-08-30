@@ -2,11 +2,19 @@ import { useEffect, useState } from "react"
 import { getTask,updateTaskStatus } from "../Services/TaskServices"
 import MainLayout from "../Componenents/MainLayout"
 import { toast } from "react-toastify"
+import useAuthStore from "../Stores/AuthStore"
+// import { UseSocketConnection } from "../CustomHook/UseSocketConnection"
 import io from 'socket.io-client';
 const URL=import.meta.env.VITE_BACKEND_URL
 const socket = io(URL); 
 const EmpDashboard = () => {
-    const [tasks,setTasks]=useState([])
+    const {user}=useAuthStore()
+    const userId=JSON.parse(localStorage.getItem("user")).id
+    
+    // const userId=user?.user?.id
+    // const { socket } = UseSocketConnection(userId);  
+      const [tasks,setTasks]=useState([])
+ //get task api call
     const fetchTaks=async()=>{
         const result=await getTask()
         if(result.status){
@@ -16,20 +24,58 @@ const EmpDashboard = () => {
     useEffect(()=>{
         fetchTaks()
     },[])
-    useEffect(()=>{
-        // Listen for the 'taskUpdated' event from the backend
-        socket.on('taskUpdated',(updatedTask)=>{
-           console.log("Received live update for task:", updatedTask);
-           toast.success("Received live update for task")
-           // Re-fetch the task statistics to reflect the change
-           fetchTaks(); 
-        })
-         // Cleanup the listener when the component unmounts
-       return () => {
-           socket.off('taskUpdated'); 
-       };
 
-   },[])
+    //useEffect for handling web socket event
+    useEffect(() => {
+        if(!userId){
+            console.log("...");
+            
+        }
+        socket.emit('joinRoom',{roomName:userId})
+        socket.connect();
+      
+        socket.on('taskUpdated', (updatedTask) => {
+          console.log(" updated your task as completed", updatedTask);
+          toast.success(` Marked your task '${updatedTask.title}' as 'completed'`);
+          fetchTaks();
+        });
+
+        //for create task
+        socket.on('taskCreated',(createdTask)=>{
+            console.log("Admin create task ", createdTask);
+            toast.success(`Admin Assign one task  '${createdTask.title}''`);
+
+        })
+      
+        return () => {
+          socket.off('taskUpdated');
+          socket.disconnect();
+          console.log("diconnect socket");
+          
+        };
+      }, []); // listener always active
+      
+    //   useEffect(() => {
+    //     if (!userId ) return;
+    //     console.log('User joined room', userId);
+    //   }, [userId]); // join when user ready
+      
+
+//      useEffect(() => {
+//     // listener only once
+//     socket.on("taskUpdated", (updatedTask) => {
+//       console.log("Admin updated your task as completed", updatedTask);
+//       toast.success(`Admin marked your task '${updatedTask.title}' as completed`);
+//       fetchTaks();
+//     });
+
+//     return () => {
+//       socket.off("taskUpdated");
+//     };
+//   }, [socket]);
+    
+
+   
     const handleStatusUpdate=async(id)=>{        
         const result=await updateTaskStatus(id)
         if(result.status){

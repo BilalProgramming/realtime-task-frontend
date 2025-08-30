@@ -4,6 +4,8 @@ import { toast } from 'react-toastify'
 const Navbar = () => {
     const handleLogout=()=>{
         localStorage.removeItem("token")
+        localStorage.removeItem("id")
+
         toast.success("Logged out!")
         setTimeout(()=>{
             window.location.href="/"

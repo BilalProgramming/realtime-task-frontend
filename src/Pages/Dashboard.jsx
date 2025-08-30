@@ -4,6 +4,10 @@ import { getAllUsers,createTask } from '../Services/TaskServices'
 import MainLayout from '../Componenents/MainLayout'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import io from 'socket.io-client';
+
+const URL=import.meta.env.VITE_BACKEND_URL
+const socket = io(URL); 
 const Dashboard = () => {
     const navigate=useNavigate()
     const [createLoading,setCreateLoading]=useState(false)
@@ -32,6 +36,7 @@ const Dashboard = () => {
         queryKey: ['users'],
         queryFn: getUsers,
       });
+    
     // useEffect(()=>{  
     //     getUsers()
         
