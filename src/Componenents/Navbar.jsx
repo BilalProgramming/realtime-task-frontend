@@ -1,7 +1,7 @@
 import React from 'react'
 import { toast } from 'react-toastify'
 
-const Navbar = () => {
+const Navbar = ({ onMenuClick }) => {
     const handleLogout=()=>{
         localStorage.removeItem("token")
         localStorage.removeItem("id")
@@ -17,8 +17,23 @@ const Navbar = () => {
        }
        return (
         <nav className='bg-gray-900 p-4 shadow-xl sticky top-0 z-10'>
+           
           <div className='flex justify-between items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+         
             <div className='flex items-center space-x-4'>
+            <button
+        className="md:hidden p-2 text-gray-800 focus:outline-none"
+        onClick={onMenuClick}
+      >
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
               </svg>
